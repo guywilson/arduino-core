@@ -1,8 +1,8 @@
 ###############################################################################
 #                                                                             #
-# MAKEFILE for rtwc - A weather station with a real-time scheduler            #
+# MAKEFILE for arduino-core                                                   #
 #                                                                             #
-# Guy Wilson (c) 2018                                                         #
+# Guy Wilson (c) 2021                                                         #
 #                                                                             #
 ###############################################################################
 
@@ -10,9 +10,6 @@ PROJNAME=libcore-samd21
 
 # Target device
 DEVICE=cortex-m0plus
-
-# Target architecture size
-ARCHSIZE=32
 
 # What is our target
 TARGET=$(PROJNAME).a
