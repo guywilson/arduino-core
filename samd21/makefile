@@ -11,21 +11,36 @@ PROJNAME=libcore-samd21
 # Target device
 DEVICE=cortex-m0plus
 
+# Set this to the board variant, used to build the correct variant.cpp file
+BOARD_VARIANT=mkrwan1300
+# BOARD_VARIANT=mkrnb1500
+# BOARD_VARIANT=arduino_zero
+# BOARD_VARIANT=mkrwifi1010
+# BOARD_VARIANT=mkrvidor4000
+# BOARD_VARIANT=mkrgsm1400
+# BOARD_VARIANT=mkrfox1200
+# BOARD_VARIANT=mkrzero
+# BOARD_VARIANT=mkr1000
+# BOARD_VARIANT=nano_33_iot
+# BOARD_VARIANT=circuitplay
+# BOARD_VARIANT=arduino_mzero
+
 # What is our target
 TARGET=$(PROJNAME).a
 
 # Build output directory
 BUILD=build
 
-# Source directory
-CORE_SRC=/Users/guy/Library/Arduino15/packages/arduino/hardware/samd/1.8.11/cores/arduino
-USB_SRC=$(CORE_SRC)/USB
-API_SRC=$(CORE_SRC)/api
-
 # Arduino base directory
 ARDUINOBASE=/Users/guy/Library/Arduino15/packages/arduino
 CMSISBASE=$(ARDUINOBASE)/tools/CMSIS
 SAMDBASE=$(ARDUINOBASE)/hardware/samd/1.8.11
+
+# Source directory
+CORE_SRC=$(SAMDBASE)/cores/arduino
+USB_SRC=$(CORE_SRC)/USB
+API_SRC=$(CORE_SRC)/api
+VARIANT_SRC=$(SAMDBASE)/variants/$(BOARD_VARIANT)
 
 # Library directory
 LIBDIR=lib
@@ -65,9 +80,10 @@ USBCSRCFILES = $(wildcard $(USB_SRC)/*.c)
 CORECPPSRCFILES = $(wildcard $(CORE_SRC)/*.cpp)
 USBCPPSRCFILES = $(wildcard $(USB_SRC)/*.cpp)
 APICPPSRCFILES = $(wildcard $(API_SRC)/*.cpp)
+VARCPPSRCFILES = $(wildcard $(VARIANT_SRC)/*.cpp)
 COREASMSRCFILES = $(wildcard $(CORE_SRC)/*.S)
-DEPFILES = $(patsubst $(CORE_SRC)/%.S, $(DEP)/%.d, $(COREASMSRCFILES)) $(patsubst $(CORE_SRC)/%.c, $(DEP)/%.d, $(CORECSRCFILES)) $(patsubst $(USB_SRC)/%.c, $(DEP)/%.d, $(USBCSRCFILES)) $(patsubst $(CORE_SRC)/%.cpp, $(DEP)/%.d, $(CORECPPSRCFILES)) $(patsubst $(USB_SRC)/%.cpp, $(DEP)/%.d, $(USBCPPSRCFILES)) $(patsubst $(API_SRC)/%.cpp, $(DEP)/%.d, $(APICPPSRCFILES))
-OBJFILES := $(patsubst $(CORE_SRC)/%.S, $(BUILD)/%.o, $(COREASMSRCFILES)) $(patsubst $(CORE_SRC)/%.c, $(BUILD)/%.o, $(CORECSRCFILES)) $(patsubst $(USB_SRC)/%.c, $(BUILD)/%.o, $(USBCSRCFILES)) $(patsubst $(CORE_SRC)/%.cpp, $(BUILD)/%.o, $(CORECPPSRCFILES)) $(patsubst $(USB_SRC)/%.cpp, $(BUILD)/%.o, $(USBCPPSRCFILES)) $(patsubst $(API_SRC)/%.cpp, $(BUILD)/%.o, $(APICPPSRCFILES))
+DEPFILES = $(patsubst $(CORE_SRC)/%.S, $(DEP)/%.d, $(COREASMSRCFILES)) $(patsubst $(CORE_SRC)/%.c, $(DEP)/%.d, $(CORECSRCFILES)) $(patsubst $(USB_SRC)/%.c, $(DEP)/%.d, $(USBCSRCFILES)) $(patsubst $(CORE_SRC)/%.cpp, $(DEP)/%.d, $(CORECPPSRCFILES)) $(patsubst $(USB_SRC)/%.cpp, $(DEP)/%.d, $(USBCPPSRCFILES)) $(patsubst $(API_SRC)/%.cpp, $(DEP)/%.d, $(APICPPSRCFILES)) $(patsubst $(VARIANT_SRC)/%.cpp, $(DEP)/%.d, $(VARCPPSRCFILES))
+OBJFILES := $(patsubst $(CORE_SRC)/%.S, $(BUILD)/%.o, $(COREASMSRCFILES)) $(patsubst $(CORE_SRC)/%.c, $(BUILD)/%.o, $(CORECSRCFILES)) $(patsubst $(USB_SRC)/%.c, $(BUILD)/%.o, $(USBCSRCFILES)) $(patsubst $(CORE_SRC)/%.cpp, $(BUILD)/%.o, $(CORECPPSRCFILES)) $(patsubst $(USB_SRC)/%.cpp, $(BUILD)/%.o, $(USBCPPSRCFILES)) $(patsubst $(API_SRC)/%.cpp, $(BUILD)/%.o, $(APICPPSRCFILES)) $(patsubst $(VARIANT_SRC)/%.cpp, $(BUILD)/%.o, $(VARCPPSRCFILES))
 OBJFILES := $(filter-out $(BUILD)/main.o, $(OBJFILES))
 
 # Target
@@ -118,6 +134,12 @@ $(BUILD)/%.o: $(USB_SRC)/%.cpp $(DEP)/%.d
 
 $(BUILD)/%.o: $(API_SRC)/%.cpp
 $(BUILD)/%.o: $(API_SRC)/%.cpp $(DEP)/%.d
+	$(PRECOMPILE)
+	$(COMPILE.cpp) $<
+	$(POSTCOMPILE)
+
+$(BUILD)/%.o: $(VARIANT_SRC)/%.cpp
+$(BUILD)/%.o: $(VARIANT_SRC)/%.cpp $(DEP)/%.d
 	$(PRECOMPILE)
 	$(COMPILE.cpp) $<
 	$(POSTCOMPILE)
