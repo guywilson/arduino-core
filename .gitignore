@@ -2,3 +2,4 @@ samd21/build/*
 samd21/lib/*
 samd21/dep/*
 .DS_Store
+samd21/arduino_ide.log
